@@ -27,7 +27,9 @@ public class PacketRecipeTransfer extends PlayToServerPacket<PacketRecipeTransfe
 		p -> p.maxTransfer,
 		ByteBufCodecs.BOOL,
 		p -> p.requireCompleteSets,
-		PacketRecipeTransfer::new
+			ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list()),
+			p->p.itemTransferAmounts,
+			PacketRecipeTransfer::new
 	);
 
 	public final List<TransferOperation> transferOperations;
@@ -35,36 +37,39 @@ public class PacketRecipeTransfer extends PlayToServerPacket<PacketRecipeTransfe
 	public final List<Integer> inventorySlots;
 	private final boolean maxTransfer;
 	private final boolean requireCompleteSets;
+	private final List<Integer> itemTransferAmounts;
 
 	public static PacketRecipeTransfer fromSlots(
 			List<TransferOperation> transferOperations,
 			List<Slot> craftingSlots,
 			List<Slot> inventorySlots,
 			boolean maxTransfer,
-			boolean requireCompleteSets
-	) {
+			boolean requireCompleteSets,
+			List<Integer> itemTransferAmounts) {
 		return new PacketRecipeTransfer(
 				transferOperations,
 				craftingSlots.stream().map(s -> s.index).toList(),
 				inventorySlots.stream().map(s -> s.index).toList(),
 				maxTransfer,
-				requireCompleteSets
+				requireCompleteSets,
+				itemTransferAmounts
 		);
 	}
 
 	public PacketRecipeTransfer(
-		List<TransferOperation> transferOperations,
-		List<Integer> craftingSlots,
-		List<Integer> inventorySlots,
-		boolean maxTransfer,
-		boolean requireCompleteSets
-	) {
+            List<TransferOperation> transferOperations,
+            List<Integer> craftingSlots,
+            List<Integer> inventorySlots,
+            boolean maxTransfer,
+            boolean requireCompleteSets, List<Integer> itemTransferAmounts
+    ) {
 		this.transferOperations = transferOperations;
 		this.craftingSlots = craftingSlots;
 		this.inventorySlots = inventorySlots;
 		this.maxTransfer = maxTransfer;
 		this.requireCompleteSets = requireCompleteSets;
-	}
+        this.itemTransferAmounts = itemTransferAmounts;
+    }
 
 	@Override
 	public Type<PacketRecipeTransfer> type() {
@@ -85,7 +90,8 @@ public class PacketRecipeTransfer extends PlayToServerPacket<PacketRecipeTransfe
 				craftingSlots.stream().map(container::getSlot).toList(),
 				inventorySlots.stream().map(container::getSlot).toList(),
 				maxTransfer,
-				requireCompleteSets
+				requireCompleteSets,
+				itemTransferAmounts
 		);
 	}
 

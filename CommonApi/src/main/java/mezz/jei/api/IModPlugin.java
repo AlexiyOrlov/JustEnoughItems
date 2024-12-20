@@ -1,6 +1,7 @@
 package mezz.jei.api;
 
 import mezz.jei.api.helpers.IPlatformFluidHelper;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.registration.IIngredientAliasRegistration;
 import mezz.jei.api.registration.IModInfoRegistration;
 import mezz.jei.api.registration.IRuntimeRegistration;
@@ -111,7 +112,7 @@ public interface IModPlugin {
 	/**
 	 * Register recipe transfer handlers (move ingredients from the inventory into crafting GUIs).
 	 */
-	default void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+	default void registerRecipeTransferHandlers(IRecipeTransferRegistration registration, IRecipeTransferHandlerHelper transferHandlerHelper) {
 
 	}
 

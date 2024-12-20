@@ -130,7 +130,8 @@ public class BasicRecipeTransferHandler<C extends AbstractContainerMenu, R> impl
 				craftingSlots,
 				inventorySlots,
 				maxTransfer,
-				requireCompleteSets
+				requireCompleteSets,
+					getItemTransferAmounts(recipe)
 			);
 			serverConnection.sendPacketToServer(packet);
 		}

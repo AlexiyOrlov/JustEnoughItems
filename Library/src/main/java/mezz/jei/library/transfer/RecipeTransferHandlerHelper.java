@@ -95,4 +95,9 @@ public class RecipeTransferHandlerHelper implements IRecipeTransferHandlerHelper
 		ImmutableSize2i recipeSize = craftingRecipeCategory.getRecipeSize(recipeHolder);
 		return CraftingGridHelper.getGuiSlotToIngredientMap(recipeHolder, recipeSize.width(), recipeSize.height());
 	}
+
+	@Override
+	public IStackHelper getStackHelper() {
+		return stackHelper;
+	}
 }

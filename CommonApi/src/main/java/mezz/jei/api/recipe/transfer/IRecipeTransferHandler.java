@@ -8,6 +8,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,4 +52,10 @@ public interface IRecipeTransferHandler<C extends AbstractContainerMenu, R> {
 	 */
 	@Nullable
 	IRecipeTransferError transferRecipe(C container, R recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer);
+
+	default List<Integer> getItemTransferAmounts(R recipe)
+	{
+		return List.of();
+	}
+
 }

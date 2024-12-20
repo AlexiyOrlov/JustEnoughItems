@@ -3,6 +3,7 @@ package mezz.jei.api.recipe.transfer;
 import mezz.jei.api.gui.ingredient.ICraftingGridHelper;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError.Type;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
@@ -102,4 +103,6 @@ public interface IRecipeTransferHandlerHelper {
 	 * @since 19.16.1
 	 */
 	Map<Integer, Ingredient> getGuiSlotIndexToIngredientMap(RecipeHolder<CraftingRecipe> recipeHolder);
+
+	IStackHelper getStackHelper();
 }

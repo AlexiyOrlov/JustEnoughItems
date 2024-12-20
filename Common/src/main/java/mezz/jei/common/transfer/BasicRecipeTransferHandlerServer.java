@@ -9,14 +9,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 
 public final class BasicRecipeTransferHandlerServer {
 	private static final Logger LOGGER = LogManager.getLogger();
@@ -33,8 +27,8 @@ public final class BasicRecipeTransferHandlerServer {
 		List<Slot> craftingSlots,
 		List<Slot> inventorySlots,
 		boolean maxTransfer,
-		boolean requireCompleteSets
-	) {
+		boolean requireCompleteSets,
+		List<Integer> itemTransferAmounts) {
 		if (!RecipeTransferUtil.validateSlots(player, transferOperations, craftingSlots, inventorySlots)) {
 			return;
 		}
@@ -54,7 +48,8 @@ public final class BasicRecipeTransferHandlerServer {
 			craftingSlots,
 			inventorySlots,
 			transferAsCompleteSets,
-			maxTransfer
+			maxTransfer,
+				itemTransferAmounts
 		);
 
 		if (recipeSlotToTakenStacks.isEmpty()) {
@@ -132,7 +127,7 @@ public final class BasicRecipeTransferHandlerServer {
 
 	@Nullable
 	private static Map<Slot, ItemStackWithSlotHint> calculateRequiredStacks(List<TransferOperation> transferOperations, Player player) {
-		Map<Slot, ItemStackWithSlotHint> recipeSlotToRequired = new HashMap<>(transferOperations.size());
+		Map<Slot, ItemStackWithSlotHint> recipeSlotToRequired = new LinkedHashMap<>(transferOperations.size());
 		for (TransferOperation transferOperation : transferOperations) {
 			Slot recipeSlot = transferOperation.craftingSlot(player.containerMenu);
 			Slot inventorySlot = transferOperation.inventorySlot(player.containerMenu);
@@ -167,26 +162,28 @@ public final class BasicRecipeTransferHandlerServer {
 		List<Slot> craftingSlots,
 		List<Slot> inventorySlots,
 		boolean transferAsCompleteSets,
-		boolean maxTransfer
-	) {
+		boolean maxTransfer,
+		List<Integer> itemTransferAmount) {
 		if (!maxTransfer) {
 			return removeOneSetOfItemsFromInventory(
 				player,
 				recipeSlotToRequiredItemStack,
 				craftingSlots,
 				inventorySlots,
-				transferAsCompleteSets
+				transferAsCompleteSets,
+					itemTransferAmount
 			);
 		}
 
-		final Map<Slot, ItemStack> recipeSlotToResult = new HashMap<>(recipeSlotToRequiredItemStack.size());
+		final Map<Slot, ItemStack> recipeSlotToResult = new LinkedHashMap<>(recipeSlotToRequiredItemStack.size());
 		while (true) {
 			final Map<Slot, ItemStack> foundItemsInSet = removeOneSetOfItemsFromInventory(
 				player,
 				recipeSlotToRequiredItemStack,
 				craftingSlots,
 				inventorySlots,
-				transferAsCompleteSets
+				transferAsCompleteSets,
+					itemTransferAmount
 			);
 
 			if (foundItemsInSet.isEmpty()) {
@@ -210,8 +207,8 @@ public final class BasicRecipeTransferHandlerServer {
 		Map<Slot, ItemStackWithSlotHint> recipeSlotToRequiredItemStack,
 		List<Slot> craftingSlots,
 		List<Slot> inventorySlots,
-		boolean transferAsCompleteSets
-	) {
+		boolean transferAsCompleteSets,
+		List<Integer> itemTransferAmounts) {
 		Map<Slot, ItemStack> originalSlotContents = null;
 		if (transferAsCompleteSets) {
 			// We only need to create a new map for each set iteration if we're transferring as complete sets.
@@ -221,8 +218,10 @@ public final class BasicRecipeTransferHandlerServer {
 		// This map holds items found for each set iteration. Its contents are added to the result map
 		// after each complete set iteration. If we are transferring as complete sets, this allows
 		// us to simply ignore the map's contents when a complete set isn't found.
-		final Map<Slot, ItemStack> foundItemsInSet = new HashMap<>(recipeSlotToRequiredItemStack.size());
+		final Map<Slot, ItemStack> foundItemsInSet = new LinkedHashMap<>(recipeSlotToRequiredItemStack.size());
 
+		//TODO order
+		int index=0;
 		for (Map.Entry<Slot, ItemStackWithSlotHint> entry : recipeSlotToRequiredItemStack.entrySet()) { // for each item in set
 			final Slot recipeSlot = entry.getKey();
 			final ItemStack requiredStack = entry.getValue().stack;
@@ -240,9 +239,16 @@ public final class BasicRecipeTransferHandlerServer {
 				}
 
 				// Reduce the size of the found slot.
-				ItemStack removedItemStack = sourceSlot.safeTake(1, Integer.MAX_VALUE, player);
-				foundItemsInSet.put(recipeSlot, removedItemStack);
-			} else {
+                ItemStack removedItemStack;
+                if(itemTransferAmounts.isEmpty())
+				{
+                    removedItemStack = sourceSlot.safeTake(1, Integer.MAX_VALUE, player);
+                }
+				else {
+                    removedItemStack = sourceSlot.safeTake(itemTransferAmounts.get(index), Integer.MAX_VALUE, player);
+                }
+                foundItemsInSet.put(recipeSlot, removedItemStack);
+            } else {
 				// We can't find any more slots to fulfill the requirements.
 
 				if (transferAsCompleteSets) {
@@ -256,6 +262,7 @@ public final class BasicRecipeTransferHandlerServer {
 					return Map.of();
 				}
 			}
+			index++;
 		}
 		return foundItemsInSet;
 	}
