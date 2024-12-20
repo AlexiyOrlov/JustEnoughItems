@@ -53,6 +53,10 @@ public interface IRecipeTransferHandler<C extends AbstractContainerMenu, R> {
 	@Nullable
 	IRecipeTransferError transferRecipe(C container, R recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer);
 
+	/**
+	 * Provide here how many items to transfer for each requested item stack
+	 * @return list of amounts for items to transfer
+	 */
 	default List<Integer> getItemTransferAmounts(R recipe)
 	{
 		return List.of();
