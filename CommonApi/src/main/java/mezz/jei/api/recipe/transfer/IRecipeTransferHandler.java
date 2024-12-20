@@ -54,7 +54,7 @@ public interface IRecipeTransferHandler<C extends AbstractContainerMenu, R> {
 	IRecipeTransferError transferRecipe(C container, R recipe, IRecipeSlotsView recipeSlots, Player player, boolean maxTransfer, boolean doTransfer);
 
 	/**
-	 * Provide here how many items to transfer for each requested item stack
+	 * Provide here how many items to transfer for each requested item stack, typically, item amounts in the recipe
 	 * @return list of amounts for items to transfer
 	 */
 	default List<Integer> getItemTransferAmounts(R recipe)
